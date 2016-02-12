@@ -91,19 +91,27 @@ function showTemplateList() {
       var results = params[1];
       var nextQuery = params[2];
 
-      results.forEach(function(result) {
+      results.forEach(function(obj) {
         var div = $('<div class="col-md-4" />');
 
         var a = $('<a href="#" class="thumbnail"'
-          + 'template_id="' + result.getUUID() + '" '
-          + 'template_title="' + result.get('title') + '" />');
+          + 'template_id="' + obj.getUUID() + '" '
+          + 'template_title="' + obj.get('title') + '" />');
         a.click(function() {
           showTemplateView($(this).attr('template_id'), $(this).attr('template_title'));
         });
 
-        var img = $('<img src="data:image/svg+xml;base64,' + result.get('thumbnail') + '" />');
+        var img = $('<img />');
 
         div.append(a.append(img)).appendTo('#template_list');
+
+        obj.downloadBody().then(
+          function(params) {
+            var body = params[1];
+            img.attr({ 'src': window.URL.createObjectURL(body) });
+          },
+          function(errObj) {
+          });
       });
     },
     function(errObj) {
