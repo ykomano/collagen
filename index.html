@@ -83,7 +83,7 @@ function showTemplateList() {
 
   var bucket = Kii.bucketWithName('template');
   var query = KiiQuery.queryWithClause(null);
-  query.sortByAsc('_created');
+  query.sortByDesc('_created');
   query.setLimit(15);
 
   bucket.executeQuery(query).then(
@@ -137,7 +137,7 @@ function showTemplateView(template_id, template_title) {
 
   var bucket = Kii.bucketWithName(template_id);
   var query = KiiQuery.queryWithClause(null);
-  query.sortByAsc('_created');
+  query.sortByDesc('_created');
   query.setLimit(15);
 
   bucket.executeQuery(query).then(
