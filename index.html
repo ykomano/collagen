@@ -87,15 +87,17 @@ function showTemplateList() {
       var results = params[1];
       var nextQuery = params[2];
 
+      var col_num = 4; // 4 columns for 1 row
+      var col_num_class = Math.floor(12 / col_num); // bootstrap default # of columns is 12
       var row;
 
       results.forEach(function(obj) {
-        if (!row || row.children().length == 4) {
+        if (!row || row.children().length == col_num) {
           row = $('<div class="row" />');
           $('#template_list').append(row);
         }
 
-        var col = $('<div class="col-md-3" />');
+        var col = $('<div class="col-md-' + col_num_class + '" />');
 
         var a = $('<a href="#" class="thumbnail"'
           + 'template_id="' + obj.getUUID() + '" '
