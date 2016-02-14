@@ -24,7 +24,7 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="index.html">collagen</a>
+      <a class="navbar-brand" href="index.html"><span class="glyphicon glyphicon-home"></span> collagen</a>
     </div>
     <div class="collapse navbar-collapse" id="navbar-collapse-1">
       <ul class="nav navbar-nav" id="navbar_buttons"></ul>
@@ -32,11 +32,11 @@
   </div>
 </nav>
 
-<div class="container" id="main">
-  <!-- template list -->
-  <div class="container" id="template_list"></div>
+<div class="container" id="main_container">
+  <!-- template list view -->
+  <div id="template_list_view"></div>
   <!-- template view -->
-  <div class="row" id="template_view"></div>
+  <div id="template_view"></div>
 </div>
 
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
@@ -56,7 +56,7 @@ $(function() {
 });
 
 function hideAll() {
-  $('#main').children().hide();
+  $('#main_container').children().hide();
   $('#navbar_buttons').html('');
 }
 
@@ -69,11 +69,11 @@ function showTemplateList() {
 
   $('<li />').append(a_add).appendTo('#navbar_buttons');
 
-  // show template list
-  $('#template_list').show();
+  // show template list view
+  $('#template_list_view').show();
 
   // if template is already exists, do nothing
-  if ($('#template_list').children().length > 0) {
+  if ($('#template_list_view').children().length > 0) {
     return;
   }
 
@@ -87,14 +87,14 @@ function showTemplateList() {
       var results = params[1];
       var nextQuery = params[2];
 
-      var col_num = 4; // 4 columns for 1 row
+      var col_num = 4; // 4 columns for row
       var col_num_class = Math.floor(12 / col_num); // bootstrap default # of columns is 12
       var row;
 
       results.forEach(function(obj) {
         if (!row || row.children().length == col_num) {
           row = $('<div class="row" />');
-          $('#template_list').append(row);
+          $('#template_list_view').append(row);
         }
 
         var col = $('<div class="col-md-' + col_num_class + '" />');
@@ -153,16 +153,36 @@ function showTemplateView(template_id, template_title) {
       var results = params[1];
       var nextQuery = params[2];
 
-      results.forEach(function(result) {
-        var div = $('<div class="col-md-4" />');
+      var col_num = 4; // 4 columns for row
+      var col_num_class = Math.floor(12 / col_num); // bootstrap default # of columns is 12
+      var row;
 
-        var a = $('<a href="#" class="thumbnail" id="' + result.getUUID() + '" />');
+      results.forEach(function(obj) {
+        if (!row || row.children().length == col_num) {
+          row = $('<div class="row" />');
+          $('#template_view').append(row);
+        }
+
+        var col = $('<div class="col-md-' + col_num_class + '" />');
+
+        var a = $('<a href="#" class="thumbnail" />');
         a.click(function() {
         });
 
-        var img = $('<img src="data:image/svg+xml;base64,' + result.get('thumbnail') + '" />');
+        row.append(col.append(a));
 
-        div.append(a.append(img)).appendTo('#template_view');
+        obj.downloadBody().then(
+          function(params) {
+            var body = params[1];
+
+            var img = $('<img />');
+            img.attr({ 'src': window.URL.createObjectURL(body) });
+            img.attr({ 'style': 'max-width:' + a.width() + 'px;max-height:' + a.width() + 'px;' });
+
+            a.append(img);
+          },
+          function(errObj) {
+          });
       });
     },
     function(errObj) {
