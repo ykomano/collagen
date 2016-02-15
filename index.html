@@ -35,6 +35,8 @@
 <div class="container" id="main_container">
   <!-- template list view -->
   <div id="template_list_view"></div>
+  <!-- new template view -->
+  <div id="new_template_view"></div>
   <!-- template view -->
   <div id="template_view"></div>
 </div>
@@ -65,15 +67,16 @@ function showTemplateList() {
 
   // prepare navbar
   var a_add = $('<a href="#"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> テンプレを作成</a>');
-  //a_add.click(showTemplateList);
+  //a_add.click(showNewTemplateView);
 
   $('<li />').append(a_add).appendTo('#navbar_buttons');
 
   // show template list view
-  $('#template_list_view').show();
+  var view = $('#template_list_view');
+  view.show();
 
   // if template is already exists, do nothing
-  if ($('#template_list_view').children().length > 0) {
+  if (view.children().length > 0) {
     return;
   }
 
@@ -94,7 +97,7 @@ function showTemplateList() {
       results.forEach(function(obj) {
         if (!row || row.children().length == col_num) {
           row = $('<div class="row" />');
-          $('#template_list_view').append(row);
+          view.append(row);
         }
 
         var col = $('<div class="col-md-' + col_num_class + '" />');
@@ -126,6 +129,25 @@ function showTemplateList() {
     });
 };
 
+//function showNewTemplateView() {
+//  hideAll();
+//
+//  // prepare navbar
+//  var a_list = $('<a href="#"><span class="glyphicon glyphicon-circle-arrow-left" aria-hidden="true"></span> テンプレ一覧に戻る</a>');
+//  a_list.click(showTemplateList);
+//
+//  $('<li />').append(a_list).appendTo('#navbar_buttons');
+//
+//  // clear and show new template view
+//  var view = $('#new_template_view');
+//  view.html('');
+//  view.show();
+//
+//  var drop_area = $('<div class="jumbotron"><h2 class="text-center">hoge</h2></div>');
+//
+//  view.append(drop_area);
+//}
+
 function showTemplateView(template_id, template_title) {
   hideAll();
 
@@ -140,8 +162,9 @@ function showTemplateView(template_id, template_title) {
   $('<li />').append(a_add).appendTo('#navbar_buttons');
 
   // clear and show template view
-  $('#template_view').html('');
-  $('#template_view').show();
+  var view = $('#template_view');
+  view.html('');
+  view.show();
 
   var bucket = Kii.bucketWithName(template_id);
   var query = KiiQuery.queryWithClause(null);
@@ -160,7 +183,7 @@ function showTemplateView(template_id, template_title) {
       results.forEach(function(obj) {
         if (!row || row.children().length == col_num) {
           row = $('<div class="row" />');
-          $('#template_view').append(row);
+          view.append(row);
         }
 
         var col = $('<div class="col-md-' + col_num_class + '" />');
