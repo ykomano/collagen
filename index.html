@@ -67,7 +67,7 @@ function showTemplateList() {
 
   // prepare navbar
   var a_add = $('<a href="#"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> テンプレを作成</a>');
-  //a_add.click(showNewTemplateView);
+  a_add.click(showNewTemplateView);
 
   $('<li />').append(a_add).appendTo('#navbar_buttons');
 
@@ -129,24 +129,85 @@ function showTemplateList() {
     });
 };
 
-//function showNewTemplateView() {
-//  hideAll();
-//
-//  // prepare navbar
-//  var a_list = $('<a href="#"><span class="glyphicon glyphicon-circle-arrow-left" aria-hidden="true"></span> テンプレ一覧に戻る</a>');
-//  a_list.click(showTemplateList);
-//
-//  $('<li />').append(a_list).appendTo('#navbar_buttons');
-//
-//  // clear and show new template view
-//  var view = $('#new_template_view');
-//  view.html('');
-//  view.show();
-//
-//  var drop_area = $('<div class="jumbotron"><h2 class="text-center">hoge</h2></div>');
-//
-//  view.append(drop_area);
-//}
+function showNewTemplateView() {
+  hideAll();
+
+  // prepare navbar
+  var a_list = $('<a href="#"><span class="glyphicon glyphicon-circle-arrow-left" aria-hidden="true"></span> テンプレ一覧に戻る</a>');
+  a_list.click(showTemplateList);
+
+  $('<li />').append(a_list).appendTo('#navbar_buttons');
+
+  // clear and show new template view
+  var view = $('#new_template_view');
+  view.html('');
+  view.show();
+
+  // prepare drop area
+  view.append($('<div class="row" />')
+    .append('<div class="col-md-offset-3 col-md-6 text-center" id="drop_area" style="border:dashed medium;">ここに画像をドロップ</div>'));
+
+  var drop_area = $('#drop_area');
+  drop_area.height(drop_area.width() / 3 * 2);
+
+  var cancelEvent = function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    return false;
+  }
+
+  // disable default event handler
+  drop_area.bind('dragenter', cancelEvent);
+  drop_area.bind('dragover', cancelEvent);
+
+  // override default event handler
+  drop_area.bind('drop', function(e) {
+    cancelEvent(e);
+
+    var files = e.originalEvent.dataTransfer.files;
+    if (files.length > 1) {
+      return false;
+    }
+
+    var file = files[0];
+    if (file.type != 'image/png' && file.type != 'image/jpeg') {
+      return false;
+    }
+
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var image = new Image();
+      image.onload = function(e) {
+        var width = image.width;
+        var height = image.height;
+
+        var x = drop_area.width() / width;
+        var y = drop_area.height() / height;
+        var ratio = Math.min(x, y);
+        if (ratio < 1.0) {
+          width = Math.floor(width * ratio);
+          height = Math.floor(height * ratio);
+        }
+
+        var canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+
+        var context = canvas.getContext('2d');
+        context.drawImage(image, 0, 0, width, height);
+
+        drop_area.html('');
+        drop_area.append($('<img src="' + canvas.toDataURL() + '" />'));
+      }
+
+      image.src = e.target.result;
+    }
+
+    reader.readAsDataURL(file);
+
+    return false;
+  });
+}
 
 function showTemplateView(template_id, template_title) {
   hideAll();
