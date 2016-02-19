@@ -191,7 +191,7 @@ function showNewTemplateView() {
           height = Math.floor(height * ratio);
         }
 
-        var canvas = document.createElement('canvas');
+        var canvas = $('<canvas />')[0];
         canvas.width = width;
         canvas.height = height;
 
