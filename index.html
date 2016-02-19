@@ -152,20 +152,28 @@ function showNewTemplateView() {
   $('#new_template_view').show();
 
   // prepare drop area and select button
-  var row = $('<div class="row" />');
-  var col = $('<div class="col-md-offset-2 col-md-8" style="border:dashed medium; display:table;" />');
+  var image_row = $('<div class="row" />');
+  var image_col = $('<div class="col-md-offset-2 col-md-8" style="border:dashed medium; display:table;" />');
   var drop_area = $('<div class="text-center" id="drop_area" style="display:table-cell; vertical-align:middle;">ここに画像をドロップ、もしくは </div>');
   var dummy_select_button = $('<button type="button" class="btn btn-default btn-xs">選択</button>');
-  view.append(row.append(col.append(drop_area.append(dummy_select_button))));
+  view.append(image_row.append(image_col.append(drop_area.append(dummy_select_button))));
 
   drop_area.height(drop_area.width() / 3 * 2);
 
+  // prepare upload button
+  var upload_row = $('<div class="row" />');
+  var upload_col = $('<div class="col-md-offset-5 col-md-2" />');
+  var upload_button = $('<button type="button" class="btn btn-primary btn-block">アップロード</button>');
+  view.append(upload_row.append(upload_col.append(upload_button)));
+
+  // prepare events for file drop/selection
   var cancelEvent = function(e) {
     e.preventDefault();
     e.stopPropagation();
     return false;
   }
 
+  var img = $('<img />');
   var loadImage = function(files) {
     if (files.length > 1) {
       return;
@@ -198,8 +206,11 @@ function showNewTemplateView() {
         var context = canvas.getContext('2d');
         context.drawImage(image, 0, 0, width, height);
 
+        img.canvas = canvas;
+        img.attr({ 'src': canvas.toDataURL() });
+
         drop_area.html('');
-        drop_area.append($('<img src="' + canvas.toDataURL() + '" />'));
+        drop_area.append(img);
       }
 
       image.src = e.target.result;
@@ -226,6 +237,13 @@ function showNewTemplateView() {
 
   select_button.change(function(e) {
     loadImage(e.target.files);
+  });
+
+  // upload loaded image
+  upload_button.click(function() {
+    img.canvas.toBlob(function(blob) {
+
+    });
   });
 }
 
