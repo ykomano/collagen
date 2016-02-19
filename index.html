@@ -37,8 +37,8 @@
   <div id="template_list_view"></div>
 
   <!-- new template view -->
-  <div>
-    <div id="new_template_view"></div>
+  <div id="new_template_view">
+    <div id="new_template_form"></div>
     <!-- hidden form -->
     <div style="display:none">
       <form><input type="file" id="new_template_button"></form>
@@ -147,9 +147,9 @@ function showNewTemplateView() {
   $('<li />').append(a_list).appendTo('#navbar_buttons');
 
   // clear and show new template view
-  var view = $('#new_template_view');
+  $('#new_template_view').show();
+  var view = $('#new_template_form');
   view.html('');
-  view.show();
 
   // prepare drop area
   var row = $('<div class="row" />');
