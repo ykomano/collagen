@@ -242,37 +242,9 @@ function showNewTemplateView() {
   // upload loaded image
   upload_button.click(function() {
     img.canvas.toBlob(function(blob) {
-      var def = new $.Deferred;
-      if (KiiUser.getCurrentUser()) {
-        def.resolve();
-      } else {
-        var fields = {};
-        KiiUser.registerAsPseudoUser(null, fields).then(
-          function() {
-            def.resolve();
-          },
-          function() {
-          });
-      }
-
-      def.promise().then(
-        function() {
-          var bucket = Kii.bucketWithName('template');
-          var obj = bucket.createObject();
-          obj.save().then(
-            function(obj) {
-              return obj.uploadBody(blob);
-            },
-            function() {
-            })
-          .then(
-            function() {
-            },
-            function() {
-            });
-        },
-        function() {
-        });
+      var bucket = Kii.bucketWithName('template');
+      var obj = bucket.createObject();
+      saveObjectWithBlob(obj, blob);
     });
   });
 }
@@ -339,6 +311,47 @@ function showTemplateView(template_id, template_title) {
     },
     function(errObj) {
     });
+}
+
+function saveObjectWithBlob(obj, blob) {
+  var def = new $.Deferred;
+
+  var step1 = new $.Deferred;
+  if (KiiUser.getCurrentUser()) {
+    step1.resolve();
+  } else {
+    var fields = {};
+    KiiUser.registerAsPseudoUser(null, fields).then(
+      function() {
+        step1.resolve();
+      },
+      function() {
+        def.reject();
+      });
+  }
+
+  step1.promise().then(
+    function() {
+      obj.save().then(
+        function(obj) {
+          return obj.uploadBody(blob);
+        },
+        function() {
+          def.reject();
+        })
+      .then(
+        function() {
+          def.resolve();
+        },
+        function() {
+          def.reject();
+        });
+    },
+    function() {
+      def.reject();
+    });
+
+  return def.promise();
 }
 
 </script>
