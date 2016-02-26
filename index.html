@@ -33,20 +33,35 @@
 </nav>
 
 <div class="container" id="main_container">
-  <!-- template list view -->
-  <div id="template_list_view"></div>
+  <!-- hidden tab bar -->
+  <ul class="nav nav-tabs" role="tablist" style="display:none">
+    <li role="presentation">
+      <a href="#template_list_view" aria-controls="template_list_view" id="template_list_view_tab" role="tab" data-toggle="tab"></a>
+    </li>
+    <li role="presentation">
+      <a href="#new_template_view" aria-controls="new_template_view" id="new_template_view_tab" role="tab" data-toggle="tab"></a>
+    </li>
+    <li role="presentation">
+      <a href="#template_view" aria-controls="template_view" id="template_view_tab" role="tab" data-toggle="tab"></a>
+    </li>
+  </ul>
 
-  <!-- new template view -->
-  <div id="new_template_view">
-    <div id="new_template_form"></div>
-    <!-- hidden form -->
-    <div style="display:none">
-      <form><input type="file" id="new_template_button"></form>
+  <div class="tab-content">
+    <!-- template list view -->
+    <div role="tabpanel" class="tab-pane" id="template_list_view"></div>
+
+    <!-- new template view -->
+    <div role="tabpanel" class="tab-pane" id="new_template_view">
+      <div id="new_template_form"></div>
+      <!-- hidden form -->
+      <div style="display:none">
+        <form><input type="file" id="new_template_button"></form>
+      </div>
     </div>
-  </div>
 
-  <!-- template view -->
-  <div id="template_view"></div>
+    <!-- template view -->
+    <div role="tabpanel" class="tab-pane" id="template_view"></div>
+  </div>
 </div>
 
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
@@ -65,23 +80,20 @@ $(function() {
   showTemplateList();
 });
 
-function hideAll() {
-  $('#main_container').children().hide();
-  $('#navbar_buttons').html('');
-}
-
 function showTemplateList() {
-  hideAll();
-
   // prepare navbar
+  var navbar = $('#navbar_buttons');
+  navbar.html('');
+
   var a_add = $('<a href="#"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> テンプレを作成</a>');
   a_add.click(showNewTemplateView);
 
-  $('<li />').append(a_add).appendTo('#navbar_buttons');
+  navbar.append($('<li />').append(a_add));
 
   // show template list view
+  $('#template_list_view_tab').tab('show');
+
   var view = $('#template_list_view');
-  view.show();
 
   // if template is already exists, do nothing
   if (view.children().length > 0) {
@@ -138,18 +150,20 @@ function showTemplateList() {
 };
 
 function showNewTemplateView() {
-  hideAll();
-
   // prepare navbar
+  var navbar = $('#navbar_buttons');
+  navbar.html('');
+
   var a_list = $('<a href="#"><span class="glyphicon glyphicon-circle-arrow-left" aria-hidden="true"></span> テンプレ一覧に戻る</a>');
   a_list.click(showTemplateList);
 
-  $('<li />').append(a_list).appendTo('#navbar_buttons');
+  navbar.append($('<li />').append(a_list));
 
   // clear and show new template view
+  $('#new_template_view_tab').tab('show');
+
   var view = $('#new_template_form');
   view.html('');
-  $('#new_template_view').show();
 
   // prepare drop area and select button
   var image_row = $('<div class="row" />');
@@ -250,22 +264,24 @@ function showNewTemplateView() {
 }
 
 function showTemplateView(template_id, template_title) {
-  hideAll();
-
   // prepare navbar
+  var navbar = $('#navbar_buttons');
+  navbar.html('');
+
   var a_list = $('<a href="#"><span class="glyphicon glyphicon-circle-arrow-left" aria-hidden="true"></span> テンプレ一覧に戻る</a>');
   a_list.click(showTemplateList);
 
   var a_add = $('<a href="#"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> このテンプレで作成</a>');
   //a_add.click(showTemplateList);
 
-  $('<li />').append(a_list).appendTo('#navbar_buttons');
-  $('<li />').append(a_add).appendTo('#navbar_buttons');
+  navbar.append($('<li />').append(a_list));
+  navbar.append($('<li />').append(a_add));
 
   // clear and show template view
+  $('#template_view_tab').tab('show');
+
   var view = $('#template_view');
   view.html('');
-  view.show();
 
   var bucket = Kii.bucketWithName(template_id);
   var query = KiiQuery.queryWithClause(null);
