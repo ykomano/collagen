@@ -77,7 +77,10 @@ $(function() {
   var appKey = 'c370e906d88a8164ba14cb456ad7bf48';
   Kii.initializeWithSite(appID, appKey, KiiSite.JP);
 
-  showTemplateList();
+  prepareUser().done(
+    function() {
+      showTemplateList();
+    });
 });
 
 function showTemplateList() {
@@ -329,39 +332,62 @@ function showTemplateView(template_id, template_title) {
     });
 }
 
+function prepareUser() {
+  var def = new $.Deferred;
+
+  // already loggedin, do nothing
+  if (KiiUser.getCurrentUser()) {
+    def.resolve();
+    return def.promise();
+  }
+
+  var fulfilledFunc = function() {
+    // save access token to browser's local storage
+    localStorage.accessToken = KiiUser.getCurrentUser().getAccessToken();
+    def.resolve();
+  }
+
+  var rejectedFunc = function() {
+    // remove access token from browser's local storage
+    localStorage.removeItem('accessToken');
+    def.reject();
+  }
+
+  if (localStorage.accessToken) {
+    // not loggedin, but browser has access token
+    KiiUser.authenticateWithToken(localStorage.accessToken).then(
+      function() {
+        // do nothing, next fulfilled will be called
+      },
+      function() {
+        return KiiUser.registerAsPseudoUser(null, {});
+      })
+    .then(
+      fulfilledFunc,
+      rejectedFunc);
+  } else {
+    // not loggedin, browser does not have access token, register new user
+    KiiUser.registerAsPseudoUser(null, {}).then(
+      fulfilledFunc,
+      rejectedFunc);
+  }
+
+  return def.promise();
+}
+
 function saveObjectWithBlob(obj, blob) {
   var def = new $.Deferred;
 
-  var step1 = new $.Deferred;
-  if (KiiUser.getCurrentUser()) {
-    step1.resolve();
-  } else {
-    var fields = {};
-    KiiUser.registerAsPseudoUser(null, fields).then(
-      function() {
-        step1.resolve();
-      },
-      function() {
-        def.reject();
-      });
-  }
-
-  step1.promise().then(
+  obj.save().then(
+    function(obj) {
+      return obj.uploadBody(blob);
+    },
     function() {
-      obj.save().then(
-        function(obj) {
-          return obj.uploadBody(blob);
-        },
-        function() {
-          def.reject();
-        })
-      .then(
-        function() {
-          def.resolve();
-        },
-        function() {
-          def.reject();
-        });
+      def.reject();
+    })
+  .then(
+    function() {
+      def.resolve();
     },
     function() {
       def.reject();
